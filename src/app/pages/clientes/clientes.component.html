@@ -1,0 +1,143 @@
+<div class="container my-5">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="mb-3">Gestión de Clientes</h1>
+      <button 
+        class="btn btn-primary" 
+        (click)="toggleFormulario()"
+        type="button">
+        {{ mostrarFormulario ? 'Cancelar' : '+ Agregar Cliente' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Formulario para agregar cliente -->
+  <div class="row mb-4" *ngIf="mostrarFormulario">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Nuevo Cliente</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="formularioCliente" (ngSubmit)="onSubmit()">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="nombre"
+                  formControlName="nombre"
+                  [class.is-invalid]="formularioCliente.get('nombre')?.invalid && formularioCliente.get('nombre')?.touched">
+                <div class="invalid-feedback" *ngIf="getFieldError('nombre')">
+                  {{ getFieldError('nombre') }}
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                <input 
+                  type="email" 
+                  class="form-control" 
+                  id="email"
+                  formControlName="email"
+                  [class.is-invalid]="formularioCliente.get('email')?.invalid && formularioCliente.get('email')?.touched">
+                <div class="invalid-feedback" *ngIf="getFieldError('email')">
+                  {{ getFieldError('email') }}
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="telefono" class="form-label">Teléfono <span class="text-danger">*</span></label>
+                <input 
+                  type="tel" 
+                  class="form-control" 
+                  id="telefono"
+                  formControlName="telefono"
+                  [class.is-invalid]="formularioCliente.get('telefono')?.invalid && formularioCliente.get('telefono')?.touched">
+                <div class="invalid-feedback" *ngIf="getFieldError('telefono')">
+                  {{ getFieldError('telefono') }}
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="direccion" class="form-label">Dirección</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="direccion"
+                  formControlName="direccion">
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button 
+                type="submit" 
+                class="btn btn-success"
+                [disabled]="formularioCliente.invalid">
+                Guardar Cliente
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-secondary"
+                (click)="toggleFormulario()">
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de clientes -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Lista de Clientes ({{ clientes().length }})</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="clientes().length === 0" class="alert alert-info">
+            No hay clientes registrados. Agrega tu primer cliente usando el botón de arriba.
+          </div>
+
+          <div class="table-responsive" *ngIf="clientes().length > 0">
+            <table class="table table-striped table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Teléfono</th>
+                  <th>Dirección</th>
+                  <th>Fecha de Registro</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cliente of clientes()">
+                  <td>{{ cliente.nombre }}</td>
+                  <td>{{ cliente.email }}</td>
+                  <td>{{ cliente.telefono }}</td>
+                  <td>{{ cliente.direccion || '-' }}</td>
+                  <td>{{ cliente.fechaCreacion | date:'short' }}</td>
+                  <td>
+                    <button 
+                      class="btn btn-danger btn-sm"
+                      (click)="eliminarCliente(cliente.id)"
+                      title="Eliminar cliente">
+                      🗑️ Eliminar
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
