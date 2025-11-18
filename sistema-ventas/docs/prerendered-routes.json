@@ -1,0 +1,11 @@
+{
+  "routes": {
+    "/Sistema-Ventas": {},
+    "/Sistema-Ventas/bienvenida": {},
+    "/Sistema-Ventas/clientes": {},
+    "/Sistema-Ventas/login": {},
+    "/Sistema-Ventas/pedidos": {},
+    "/Sistema-Ventas/productos": {},
+    "/Sistema-Ventas/reportes": {}
+  }
+}

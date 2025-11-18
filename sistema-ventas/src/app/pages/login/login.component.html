@@ -1,0 +1,98 @@
+<div class="container">
+  <div class="row justify-content-center align-items-center min-vh-100">
+    <div class="col-md-5 col-lg-4">
+      <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center">
+          <h3 class="mb-0">🔐 Sistema de Ventas</h3>
+          <p class="mb-0 small">{{ mostrarRegistro ? 'Registro de Usuario' : 'Iniciar Sesión' }}</p>
+        </div>
+        <div class="card-body p-4">
+          <!-- Mensajes de error y éxito -->
+          <div *ngIf="errorMensaje" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error:</strong> {{ errorMensaje }}
+            <button type="button" class="btn-close" (click)="errorMensaje = ''" aria-label="Close"></button>
+          </div>
+          <div *ngIf="exitoMensaje" class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Éxito:</strong> {{ exitoMensaje }}
+            <button type="button" class="btn-close" (click)="exitoMensaje = ''" aria-label="Close"></button>
+          </div>
+
+          <!-- Formulario de Login/Registro -->
+          <form [formGroup]="formularioLogin" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="username" class="form-label">
+                <strong>Usuario</strong> <span class="text-danger">*</span>
+              </label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="username"
+                formControlName="username"
+                placeholder="Ingresa tu usuario"
+                [class.is-invalid]="formularioLogin.get('username')?.invalid && formularioLogin.get('username')?.touched">
+              <div class="invalid-feedback" *ngIf="getFieldError('username')">
+                {{ getFieldError('username') }}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">
+                <strong>Contraseña</strong> <span class="text-danger">*</span>
+              </label>
+              <input 
+                type="password" 
+                class="form-control" 
+                id="password"
+                formControlName="password"
+                placeholder="Ingresa tu contraseña"
+                [class.is-invalid]="formularioLogin.get('password')?.invalid && formularioLogin.get('password')?.touched">
+              <div class="invalid-feedback" *ngIf="getFieldError('password')">
+                {{ getFieldError('password') }}
+              </div>
+              <small class="text-muted" *ngIf="!mostrarRegistro">
+                Contraseña por defecto: <code>admin123</code>
+              </small>
+            </div>
+
+            <div class="d-grid gap-2 mb-3">
+              <button 
+                type="submit" 
+                class="btn btn-primary btn-lg"
+                [disabled]="formularioLogin.invalid">
+                {{ mostrarRegistro ? 'Registrarse' : 'Iniciar Sesión' }}
+              </button>
+            </div>
+          </form>
+
+          <!-- Usuarios de ejemplo -->
+          <div *ngIf="!mostrarRegistro" class="card bg-light mb-3">
+            <div class="card-body">
+              <h6 class="card-title">👥 Usuarios de ejemplo:</h6>
+              <ul class="list-unstyled mb-0 small">
+                <li><strong>Usuario:</strong> admin | <strong>Contraseña:</strong> admin123</li>
+                <li><strong>Usuario:</strong> vendedor | <strong>Contraseña:</strong> admin123</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Toggle entre Login y Registro -->
+          <div class="text-center">
+            <hr>
+            <p class="mb-0">
+              {{ mostrarRegistro ? '¿Ya tienes una cuenta?' : '¿No tienes una cuenta?' }}
+              <a href="#" (click)="toggleModo(); $event.preventDefault()" class="text-primary">
+                {{ mostrarRegistro ? 'Iniciar Sesión' : 'Registrarse' }}
+              </a>
+            </p>
+            <p class="mb-0 mt-2">
+              <a routerLink="/restablecer-password" class="text-warning">
+                🔑 ¿Olvidaste tu contraseña?
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
