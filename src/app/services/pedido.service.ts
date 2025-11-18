@@ -26,7 +26,8 @@ export class PedidoService {
     const nuevoPedido: Pedido = {
       ...pedido,
       id: this.generarId(),
-      fechaCreacion: new Date()
+      fechaCreacion: new Date(),
+      estado: pedido.estado || 'Pendiente'
     };
 
     const pedidosActuales = this.pedidos();
@@ -53,7 +54,18 @@ export class PedidoService {
         // Convertir fechas de string a Date
         const pedidosConFechas = pedidos.map((p: any) => ({
           ...p,
-          fechaCreacion: new Date(p.fechaCreacion)
+          fechaCreacion: new Date(p.fechaCreacion),
+          cliente: {
+            ...p.cliente,
+            fechaCreacion: new Date(p.cliente.fechaCreacion)
+          },
+          items: p.items.map((item: any) => ({
+            ...item,
+            producto: {
+              ...item.producto,
+              fechaCreacion: new Date(item.producto.fechaCreacion)
+            }
+          }))
         }));
         this.pedidos.set(pedidosConFechas);
       }

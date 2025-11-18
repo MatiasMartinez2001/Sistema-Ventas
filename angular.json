@@ -29,7 +29,7 @@
               "src/styles.css"
             ],
             "server": "src/main.server.ts",
-            "outputMode": "server",
+            "outputMode": "static",
             "ssr": {
               "entry": "src/server.ts"
             }
@@ -97,6 +97,6 @@
     }
   },
   "cli": {
-    "analytics": false
+    "analytics": "da48b02a-64f5-4ea1-8e41-068ce7619974"
   }
 }

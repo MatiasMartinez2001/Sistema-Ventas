@@ -1,140 +1,142 @@
-import { Component, OnInit, computed } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { ClienteService } from '../../services/cliente.service';
 import { ProductoService } from '../../services/producto.service';
 import { PedidoService } from '../../services/pedido.service';
 import { Cliente } from '../../models/cliente.model';
 import { Producto } from '../../models/producto.model';
-import { PedidoItem } from '../../models/pedido-item.model';
+import { ItemPedido, Pedido } from '../../models/pedido.model';
 
 @Component({
   selector: 'app-pedidos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './pedidos.component.html',
   styleUrl: './pedidos.component.css'
 })
 export class PedidosComponent implements OnInit {
-  formularioPedido: FormGroup;
   clientes!: ReturnType<ClienteService['getClientes']>;
   productos!: ReturnType<ProductoService['getProductos']>;
   pedidos!: ReturnType<PedidoService['getPedidos']>;
-  
-  carrito: PedidoItem[] = [];
-  clienteSeleccionado: Cliente | null = null;
-  mostrarListaPedidos = false;
 
-  // Calcular total del carrito
-  totalCarrito = computed(() => {
-    return this.carrito.reduce((sum, item) => sum + item.subtotal, 0);
-  });
+  clienteSeleccionado: Cliente | null = null;
+  carrito: ItemPedido[] = [];
+  mostrarFormulario = false;
+  mostrarHistorial = false;
+  pedidoSeleccionado: Pedido | null = null;
+  mostrarDetalles = false;
+  categoriaFiltro: string = '';
+  productosFiltrados = signal<Producto[]>([]);
 
   constructor(
-    private fb: FormBuilder,
     private clienteService: ClienteService,
     private productoService: ProductoService,
-    private pedidoService: PedidoService
-  ) {
-    this.formularioPedido = this.fb.group({
-      clienteId: ['', Validators.required],
-      productoId: ['', Validators.required],
-      cantidad: [1, [Validators.required, Validators.min(1)]]
-    });
-  }
+    private pedidoService: PedidoService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
+    // Inicializar los signals después de que los servicios estén disponibles
     this.clientes = this.clienteService.getClientes();
     this.productos = this.productoService.getProductos();
     this.pedidos = this.pedidoService.getPedidos();
     
-    // Debug: verificar que los servicios estén funcionando
-    console.log('Clientes cargados:', this.clientes().length);
-    console.log('Productos cargados:', this.productos().length);
-    console.log('Pedidos cargados:', this.pedidos().length);
+    // Actualizar productos filtrados cuando cambien los productos
+    // Usar setTimeout para asegurar que se ejecute después del ciclo de detección
+    setTimeout(() => {
+      this.productosFiltrados.set(this.productos());
+      // Forzar detección de cambios para asegurar que los botones se muestren
+      this.cdr.detectChanges();
+    }, 0);
   }
 
-  seleccionarCliente(): void {
-    const clienteId = this.formularioPedido.get('clienteId')?.value;
-    if (clienteId) {
-      const clientesList = this.clientes();
-      this.clienteSeleccionado = clientesList.find(c => c.id === clienteId) || null;
-    } else {
-      this.clienteSeleccionado = null;
-    }
+  seleccionarCliente(cliente: Cliente): void {
+    this.clienteSeleccionado = cliente;
   }
 
-  agregarAlCarrito(): void {
-    const productoId = this.formularioPedido.get('productoId')?.value;
-    const cantidad = this.formularioPedido.get('cantidad')?.value;
-
-    if (!productoId || !cantidad || cantidad < 1) {
-      return;
-    }
-
-    const productosList = this.productos();
-    const producto = productosList.find(p => p.id === productoId);
-
-    if (!producto) {
-      return;
-    }
-
+  agregarAlCarrito(producto: Producto): void {
     // Verificar si el producto ya está en el carrito
-    const itemExistente = this.carrito.find(item => item.productoId === productoId);
-
+    const itemExistente = this.carrito.find(item => item.producto.id === producto.id);
+    
     if (itemExistente) {
-      // Si ya existe, actualizar la cantidad
-      itemExistente.cantidad += cantidad;
-      itemExistente.subtotal = itemExistente.cantidad * itemExistente.precioUnitario;
+      // Si ya existe, aumentar la cantidad
+      if (itemExistente.cantidad < producto.stock) {
+        itemExistente.cantidad++;
+        itemExistente.subtotal = itemExistente.cantidad * itemExistente.producto.precio;
+      } else {
+        alert(`No hay suficiente stock. Stock disponible: ${producto.stock}`);
+      }
     } else {
-      // Si no existe, agregar nuevo item
-      const nuevoItem: PedidoItem = {
-        productoId: producto.id,
-        productoNombre: producto.nombre,
-        cantidad: cantidad,
-        precioUnitario: producto.precio,
-        subtotal: producto.precio * cantidad
-      };
-      this.carrito.push(nuevoItem);
+      // Si no existe, agregarlo al carrito
+      if (producto.stock > 0) {
+        const nuevoItem: ItemPedido = {
+          producto: producto,
+          cantidad: 1,
+          subtotal: producto.precio
+        };
+        this.carrito.push(nuevoItem);
+        // Efecto visual: scroll suave al carrito
+        setTimeout(() => {
+          const carritoElement = document.querySelector('.carrito-section');
+          if (carritoElement) {
+            carritoElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }, 100);
+      } else {
+        alert('Este producto no tiene stock disponible');
+      }
     }
-
-    // Resetear el formulario de producto
-    this.formularioPedido.patchValue({
-      productoId: '',
-      cantidad: 1
-    });
   }
 
   eliminarDelCarrito(index: number): void {
     this.carrito.splice(index, 1);
   }
 
-  actualizarCantidad(item: PedidoItem, nuevaCantidad: number): void {
-    if (nuevaCantidad < 1) {
+  actualizarCantidad(item: ItemPedido, nuevaCantidad: number): void {
+    if (nuevaCantidad <= 0) {
+      this.eliminarDelCarrito(this.carrito.indexOf(item));
       return;
     }
-    item.cantidad = nuevaCantidad;
-    item.subtotal = item.cantidad * item.precioUnitario;
+    
+    if (nuevaCantidad > item.producto.stock) {
+      alert(`No hay suficiente stock. Stock disponible: ${item.producto.stock}`);
+      item.cantidad = item.producto.stock;
+    } else {
+      item.cantidad = nuevaCantidad;
+    }
+    
+    item.subtotal = item.cantidad * item.producto.precio;
+  }
+
+  calcularTotal(): number {
+    return this.carrito.reduce((total, item) => total + item.subtotal, 0);
   }
 
   crearPedido(): void {
-    if (!this.clienteSeleccionado || this.carrito.length === 0) {
-      alert('Debes seleccionar un cliente y agregar al menos un producto al carrito');
+    if (!this.clienteSeleccionado) {
+      alert('Por favor, selecciona un cliente');
       return;
     }
 
-    this.pedidoService.agregarPedido({
-      clienteId: this.clienteSeleccionado.id,
-      clienteNombre: this.clienteSeleccionado.nombre,
-      items: [...this.carrito],
-      total: this.totalCarrito()
-    });
+    if (this.carrito.length === 0) {
+      alert('El carrito está vacío. Agrega productos antes de crear el pedido');
+      return;
+    }
 
-    // Limpiar el carrito y resetear formulario
+    const nuevoPedido: Omit<Pedido, 'id' | 'fechaCreacion'> = {
+      cliente: this.clienteSeleccionado,
+      items: [...this.carrito],
+      total: this.calcularTotal(),
+      estado: 'Pendiente'
+    };
+
+    this.pedidoService.agregarPedido(nuevoPedido);
+    
+    // Limpiar el carrito y resetear
     this.carrito = [];
     this.clienteSeleccionado = null;
-    this.formularioPedido.reset();
-    this.mostrarListaPedidos = true;
+    this.mostrarFormulario = false;
     
     alert('Pedido creado exitosamente');
   }
@@ -145,6 +147,18 @@ export class PedidosComponent implements OnInit {
     }
   }
 
+  toggleFormulario(): void {
+    this.mostrarFormulario = !this.mostrarFormulario;
+    if (!this.mostrarFormulario) {
+      this.carrito = [];
+      this.clienteSeleccionado = null;
+    }
+  }
+
+  toggleHistorial(): void {
+    this.mostrarHistorial = !this.mostrarHistorial;
+  }
+
   formatearPrecio(precio: number): string {
     return new Intl.NumberFormat('es-AR', {
       style: 'currency',
@@ -152,8 +166,40 @@ export class PedidosComponent implements OnInit {
     }).format(precio);
   }
 
-  obtenerProductoPorId(productoId: string): Producto | undefined {
-    const productosList = this.productos();
-    return productosList.find(p => p.id === productoId);
+  obtenerNombreCliente(cliente: Cliente): string {
+    return cliente.nombre;
+  }
+
+  obtenerCantidadItems(pedido: Pedido): number {
+    return pedido.items.reduce((total, item) => total + item.cantidad, 0);
+  }
+
+  verDetalles(pedido: Pedido): void {
+    this.pedidoSeleccionado = pedido;
+    this.mostrarDetalles = true;
+  }
+
+  cerrarDetalles(): void {
+    this.mostrarDetalles = false;
+    this.pedidoSeleccionado = null;
+  }
+
+  filtrarProductos(): void {
+    if (!this.categoriaFiltro) {
+      this.productosFiltrados.set(this.productos());
+    } else {
+      const filtrados = this.productos().filter(p => p.categoria === this.categoriaFiltro);
+      this.productosFiltrados.set(filtrados);
+    }
+  }
+
+  obtenerIconoProducto(categoria: string): string {
+    const iconos: { [key: string]: string } = {
+      'Maquillaje': '💄',
+      'Cuidado de la Piel': '🧴',
+      'Fragancias': '🌸',
+      'Accesorios': '✨'
+    };
+    return iconos[categoria] || '🛍️';
   }
 }

@@ -21,4 +21,3 @@ import { FooterComponent } from './components/footer/footer.component';
 export class App {
   protected readonly title = signal('sistema-ventas');
 }
-

@@ -1,19 +1,23 @@
 <div class="container my-5">
   <div class="row">
     <div class="col-12">
-      <div class="jumbotron bg-light p-5 rounded mb-4">
-        <h1 class="display-4">Bienvenido al Sistema de Ventas</h1>
-        <p class="lead">Sistema de gestión de ventas por catálogo desarrollado por NamekSoft y Biggete</p>
-        <hr class="my-4">
+      <div class="hero-section">
+        <h1 class="display-4 fade-in">Bienvenido{{ nombreUsuario() ? ', ' + nombreUsuario() : '' }}</h1>
+        <p class="lead fade-in-delay">Sistema de gestión de ventas desarrollado por <strong>NamekSoft</strong> para <strong>Biggete</strong></p>
+        <div class="divider"></div>
       </div>
     </div>
   </div>
 
   <div class="row">
     <div class="col-md-6 mb-4">
-      <div class="card h-100">
+      <div class="card-elegant h-100 slide-in-left">
         <div class="card-body">
-          <h2 class="card-title text-primary">NamekSoft</h2>
+          <div class="icon-wrapper">
+            <span class="icon">💻</span>
+          </div>
+          <h2 class="card-title">NamekSoft</h2>
+          <p class="subtitle">Empresa Desarrolladora</p>
           <p class="card-text">
             NamekSoft es una empresa especializada en el desarrollo de soluciones tecnológicas innovadoras. 
             Con años de experiencia en el mercado, nos dedicamos a crear software de calidad que impulsa 
@@ -23,23 +27,30 @@
             Nuestro equipo de profesionales altamente capacitados trabaja con las últimas tecnologías 
             para ofrecer soluciones personalizadas que se adaptan a las necesidades específicas de cada negocio.
           </p>
+          <div class="badge-developer">Desarrollador del Sistema</div>
         </div>
       </div>
     </div>
 
     <div class="col-md-6 mb-4">
-      <div class="card h-100">
+      <div class="card-elegant h-100 slide-in-right">
         <div class="card-body">
-          <h2 class="card-title text-success">Biggete</h2>
+          <div class="icon-wrapper">
+            <span class="icon">✨</span>
+          </div>
+          <h2 class="card-title">Biggete</h2>
+          <p class="subtitle">Nuestro Cliente</p>
           <p class="card-text">
-            Biggete es una empresa líder en soluciones empresariales, comprometida con la excelencia 
-            y la innovación constante. Nos especializamos en transformar procesos empresariales a través 
-            de tecnología de vanguardia.
+            Biggete es una empresa líder en la industria cosmética, comprometida con la excelencia y la innovación 
+            constante en el cuidado personal y la belleza. Nos especializamos en ofrecer productos cosméticos de 
+            alta calidad que realzan la belleza natural.
           </p>
           <p class="card-text">
-            Con un enfoque centrado en el cliente, Biggete desarrolla sistemas que optimizan la gestión 
-            empresarial, mejoran la productividad y generan valor real para las organizaciones.
+            Con un enfoque centrado en la innovación y la calidad, Biggete ofrece una amplia gama de productos 
+            cosméticos que incluyen maquillaje, cuidado de la piel, fragancias y productos de belleza, todos 
+            diseñados para satisfacer las necesidades de nuestros clientes más exigentes.
           </p>
+          <div class="badge-client">Cliente</div>
         </div>
       </div>
     </div>
@@ -47,17 +58,16 @@
 
   <div class="row mt-4">
     <div class="col-12">
-      <div class="card">
+      <div class="card-elegant slide-in-up">
         <div class="card-body">
           <h3 class="card-title">Sobre el Sistema</h3>
           <p class="card-text">
-            Este sistema de ventas por catálogo ha sido desarrollado en colaboración entre NamekSoft y Biggete, 
-            combinando lo mejor de ambas empresas para ofrecer una solución completa y eficiente para la gestión 
-            de ventas.
+            Este sistema de gestión de ventas ha sido <strong>desarrollado por NamekSoft</strong> para Biggete, 
+            ofreciendo una solución completa y eficiente para la gestión de ventas de productos cosméticos.
           </p>
           <p class="card-text">
-            El sistema permite gestionar clientes, productos, pedidos y generar reportes detallados, 
-            facilitando la administración integral de su negocio.
+            El sistema permite gestionar clientes, productos cosméticos, pedidos y generar reportes detallados, 
+            facilitando la administración integral del negocio de Biggete.
           </p>
         </div>
       </div>

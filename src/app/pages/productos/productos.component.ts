@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductoService } from '../../services/producto.service';
@@ -18,7 +18,8 @@ export class ProductosComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private productoService: ProductoService
+    private productoService: ProductoService,
+    private cdr: ChangeDetectorRef
   ) {
     this.formularioProducto = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
@@ -32,6 +33,11 @@ export class ProductosComponent implements OnInit {
   ngOnInit(): void {
     // Inicializar productos después de que el servicio esté disponible
     this.productos = this.productoService.getProductos();
+    
+    // Forzar detección de cambios para asegurar que los productos se muestren
+    setTimeout(() => {
+      this.cdr.detectChanges();
+    }, 0);
   }
 
   toggleFormulario(): void {

@@ -1,0 +1,44 @@
+<div class="container">
+  <div class="row justify-content-center align-items-center min-vh-100">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center">
+          <h3 class="mb-0">👋 Bienvenido al Sistema de Ventas</h3>
+        </div>
+        <div class="card-body p-4">
+          <p class="text-center mb-4">Por favor, ingresa tu nombre para continuar</p>
+
+          <!-- Formulario de Nombre -->
+          <form [formGroup]="formularioNombre" (ngSubmit)="onSubmit()">
+            <div class="mb-4">
+              <label for="nombre" class="form-label">
+                <strong>Tu Nombre</strong> <span class="text-danger">*</span>
+              </label>
+              <input 
+                type="text" 
+                class="form-control form-control-lg" 
+                id="nombre"
+                formControlName="nombre"
+                placeholder="Ingresa tu nombre"
+                autofocus
+                [class.is-invalid]="formularioNombre.get('nombre')?.invalid && formularioNombre.get('nombre')?.touched">
+              <div class="invalid-feedback" *ngIf="getFieldError('nombre')">
+                {{ getFieldError('nombre') }}
+              </div>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button 
+                type="submit" 
+                class="btn btn-primary btn-lg"
+                [disabled]="formularioNombre.invalid">
+                Continuar →
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
